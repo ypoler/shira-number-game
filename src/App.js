@@ -20,11 +20,21 @@ function randomizeNumber() {
   return Math.floor(Math.random() * 10);
 }
 
-function cleanForm(setNum1, setNum2, setAnswer) {
+function cleanForm(setNum1, setNum2, setOper, setAnswer) {
   let num1 = randomizeNumber();
   let num2 = randomizeNumber();
+  let oper = "+";
+  if (Math.random() < 0.5) {
+    oper = "-";
+    if (num2 > num1) {
+      let tmp = num1;
+      num1 = num2;
+      num2 = tmp;
+    }
+  }
   setNum1(num1);
   setNum2(num2);
+  setOper(oper);
   setAnswer("");
 }
 
@@ -46,14 +56,21 @@ function onChangeHandler(
   e,
   num1,
   num2,
+  oper,
   setAnswer,
   setNum1,
   setNum2,
+  setOper,
   setModalOpen,
   numAnswers,
   setNumAnswers
 ) {
-  let real_answer = num1 + num2;
+  let real_answer;
+  if (oper === "+") {
+    real_answer = num1 + num2;
+  } else {
+    real_answer = num1 - num2;
+  }
   let user_answer;
   try {
     user_answer = parseInt(e.target.value, 10);
@@ -66,7 +83,7 @@ function onChangeHandler(
 
   if (real_answer === user_answer) {
     setModalOpen(true);
-    cleanForm(setNum1, setNum2, setAnswer);
+    cleanForm(setNum1, setNum2, setOper, setAnswer);
     setNumAnswers(numAnswers + 1);
   } else if (user_answer.length < real_answer.toString().length) {
     console.log("cont");
@@ -78,8 +95,10 @@ function onChangeHandler(
 function ExerciseBox({
   num1,
   num2,
+  oper,
   setNum1,
   setNum2,
+  setOper,
   answer,
   setAnswer,
   setModalOpen,
@@ -89,7 +108,7 @@ function ExerciseBox({
   return (
     <p align="center">
       <DigitBox digit={num1} />
-      <DigitBox digit="+" />
+      <DigitBox digit={oper} />
       <DigitBox digit={num2} />
       <DigitBox digit="=" />
       <input
@@ -105,9 +124,11 @@ function ExerciseBox({
             event,
             num1,
             num2,
+            oper,
             setAnswer,
             setNum1,
             setNum2,
+            setOper,
             setModalOpen,
             numAnswers,
             setNumAnswers
@@ -121,6 +142,7 @@ function ExerciseBox({
 export default function App() {
   const [num1, setNum1] = useState(randomizeNumber());
   const [num2, setNum2] = useState(randomizeNumber());
+  const [oper, setOper] = useState("+");
   const [answer, setAnswer] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [numAnswers, setNumAnswers] = useState(0);
@@ -131,8 +153,10 @@ export default function App() {
       <ExerciseBox
         num1={num1}
         num2={num2}
+        oper={oper}
         setNum1={setNum1}
         setNum2={setNum2}
+        setOper={setOper}
         answer={answer}
         setAnswer={setAnswer}
         setModalOpen={setModalOpen}
