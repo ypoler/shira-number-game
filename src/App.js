@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Modal } from "@react-ui-org/react-ui";
 import styles from "./mystyle.css";
 import cup_bitmap_lst from "./cupbitmap";
+let max_target = 10;
+let plus_mode = "ow"; //"up_to_max"; // up_to_max: num1+num2 <= target, o/w: num1<target and num2<target
 
 function shuffleArray(arr) {
   arr.sort(() => Math.random() - 0.5);
@@ -16,21 +18,27 @@ function DigitBox(props) {
   return <button style={{ fontSize: "150px" }}>{props.digit}</button>;
 }
 
-function randomizeNumber() {
-  return Math.floor(Math.random() * 10);
+function randomizeNumber(target) {
+  return Math.floor(Math.random() * target);
+}
+
+function randomizeNumberForPlus(num1, mode, target) {
+  if (mode === "up_to_max") {
+    return randomizeNumber(target - num1);
+  } else {
+    return randomizeNumber(target);
+  }
 }
 
 function cleanForm(setNum1, setNum2, setOper, setAnswer) {
-  let num1 = randomizeNumber();
-  let num2 = randomizeNumber();
+  let num1 = randomizeNumber(max_target);
+  let num2; // = randomizeNumber();
   let oper = "+";
   if (Math.random() < 0.5) {
     oper = "-";
-    if (num2 > num1) {
-      let tmp = num1;
-      num1 = num2;
-      num2 = tmp;
-    }
+    num2 = randomizeNumber(num1);
+  } else {
+    num2 = randomizeNumberForPlus(num1, plus_mode, max_target);
   }
   setNum1(num1);
   setNum2(num2);
@@ -140,8 +148,10 @@ function ExerciseBox({
 }
 
 export default function App() {
-  const [num1, setNum1] = useState(randomizeNumber());
-  const [num2, setNum2] = useState(randomizeNumber());
+  const [num1, setNum1] = useState(randomizeNumber(max_target));
+  const [num2, setNum2] = useState(
+    randomizeNumberForPlus(num1, plus_mode, max_target)
+  );
   const [oper, setOper] = useState("+");
   const [answer, setAnswer] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
